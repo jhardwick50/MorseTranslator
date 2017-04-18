@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package morsecodetranslator;
+package morsecodetranslator.client;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -30,6 +31,7 @@ public class Client extends JFrame implements Runnable{
     private Scanner input;//input from server
     private Formatter output;//output to server
     private String morseHost;//host name
+    private String message;
     
     //set up user interface
     public Client(String host){
@@ -38,7 +40,7 @@ public class Client extends JFrame implements Runnable{
         displayArea.setEditable(false);
         add(new JScrollPane(displayArea),BorderLayout.SOUTH);
         
-        startClient();
+        
     }//end constructor
     
     //start client thread
@@ -49,8 +51,8 @@ public class Client extends JFrame implements Runnable{
             connection = new Socket(InetAddress.getByName(morseHost),12345);
             
             //get streams for input output
-            input = new Scanner(connection.getInputStream);
-            output = new Formatter(connection.getOutputStream);
+            input = new Scanner(connection.getInputStream());
+            output = new Formatter(connection.getOutputStream());
         }
         catch (IOException ioException){
             ioException.printStackTrace();
@@ -59,7 +61,27 @@ public class Client extends JFrame implements Runnable{
         ExecutorService worker = Executors.newFixedThreadPool(1);
         worker.execute(this);//execute client
     }//end method startClient
+    
+    public static void main(String[] args) {
+        Client application = new Client("127.0.0.1");
+        application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        application.startClient();
+       
+    }
 
+    @Override
+    public void run() {
+        message = input.nextLine();
+        
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                
+            }
+            
+        }
+        );
+    }
    
 } // End class Client
     

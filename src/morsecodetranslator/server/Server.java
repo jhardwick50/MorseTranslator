@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package morsecodetranslator;
+package morsecodetranslator.server;
 
 /**
  *
@@ -25,17 +25,17 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-public class MorseServer extends JFrame{
+public class Server extends JFrame{
        private JTextArea outputArea;
        private ServerSocket server; // server socket to connect with clients
        private ExecutorService runTranslator;
        private Condition otherUserConnected; 
        private Lock transLock;
-       private User[] users;
+       private ConnectedClient[] users = new ConnectedClient[2];
        private final static int user1 = 0;
        private final static int user2 = 1;
        
-    public morseServer(){
+    public Server(){
         //create an executor service with a thread for each player
         runTranslator = Executors.newFixedThreadPool( 2 );
         transLock = new ReentrantLock(); // create lock
@@ -66,7 +66,7 @@ public class MorseServer extends JFrame{
         //wait for each client to connect
         for (int i = 0; i < users.length; i++){
             try { //wait for connection, create user, start runnable, 
-                users[i] = new User(server.accept(), i);
+                users[i] = new ConnectedClient(server.accept(), i);
                 runTranslator.execute(users[i]);
             }//end try
             catch (IOException ioException){
@@ -98,7 +98,7 @@ public class MorseServer extends JFrame{
         
     }//end method displayMessage
     //inner class user manages users as runnables
-    private class User implements Runnable {
+    private class ConnectedClient implements Runnable {
         private Socket connection;//connection to client
         private Scanner input;//input from client
         private Formatter output; // output to client
@@ -106,7 +106,7 @@ public class MorseServer extends JFrame{
         private boolean suspended = true; //finds out if thread is suspended
         
         //set up user thread
-        public User(Socket socket, int number){
+        public ConnectedClient(Socket socket, int number){
             userNumber = number;//store users number
             connection = socket;//store socket for client
             
@@ -128,6 +128,18 @@ public class MorseServer extends JFrame{
             //process messages from client
             
         }
+
+        private void setSuspended(boolean status) {
+            suspended = status;
+        }
+        
+    }
+    
+    public static void main(String[] args) {
+        Server application = new Server();
+        application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        application.execute();
+       
     }
        
        
