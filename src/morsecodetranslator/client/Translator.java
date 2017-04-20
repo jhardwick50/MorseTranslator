@@ -24,7 +24,7 @@ public class Translator {
                 "-----", "--..--", ".-.-.-", "..--.." };
 
     //Scanner keyboard = new Scanner(System.in);
-    public void translator(){
+    public void test(){
         
     System.out.println(" This is an English to Morse Code Translator.  ");
     System.out.println(" Please enter what you would like translate ");
@@ -47,6 +47,27 @@ public class Translator {
         }
     }
     System.out.println(str);
+    }
+    
+    public String translateToMorse(String string){
+        //move code here
+        char[] chars = string.toCharArray();
+
+    String str = "";
+    for (int i = 0; i < chars.length; i++){
+        for (int j = 0; j < english.length; j++){
+
+            if (english[j] == chars[i]){
+                str += morse[j] + " ";  
+            }
+        }
+    }
+        return str;
+    }
+    
+    public String translateFromMorse(String string){
+        
+        return null;
     }
     
 }

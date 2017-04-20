@@ -26,20 +26,26 @@ import javax.swing.SwingUtilities;
 
 
 public class Client extends JFrame implements Runnable{
-    private JTextArea displayArea;//area to display output
+    public JTextArea displayArea;//area to display output
     private Socket connection;//connection to server
     private Scanner input;//input from server
     private Formatter output;//output to server
     private String morseHost;//host name
     private String message;
+    public JTextArea chatArea;
     
     //set up user interface
     public Client(String host){
         morseHost = host;//set name of server
-        displayArea = new JTextArea(4,30);//set up JTextArea
+        displayArea = new JTextArea(20,30);//set up JTextArea
         displayArea.setEditable(false);
-        add(new JScrollPane(displayArea),BorderLayout.SOUTH);
+        add(new JScrollPane(displayArea),BorderLayout.NORTH);
+        chatArea = new JTextArea(4,30);//area for input
+        add(new JScrollPane(chatArea),BorderLayout.SOUTH);
+        chatArea.addKeyListener(new MessageSendListener(new MessageService(this)));
         
+        setSize(500,500);
+        setVisible(true);
         
     }//end constructor
     
