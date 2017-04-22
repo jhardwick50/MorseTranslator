@@ -1,9 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Jason Hardwick
+CIS 314
+4/12/17
  */
 package morsecodetranslator.client;
+
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -22,18 +24,32 @@ public class MessageService {
     
     public void sendMessage(){
         String text = client.chatArea.getText();
+        
         //update chat window
-        client.displayArea.append(text);
         client.chatArea.setText("");
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                client.displayArea.append("\nMe: " + text);
+            }
+        });
         //translate message
         String morse = translator.translateToMorse(text);
-        System.out.println(morse);
+        
         //send translated message to server through client
+        client.sendMesage(morse);
     }
     
-    public void recieveMessage(){
-        //recieve encoded message
+    public void processMessage(String message){
         //translate message
+        String english = translator.translateFromMorse(message);
         //update chat window
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+                client.displayArea.append("Them: " + message + "\n              " + english);
+            }
+        });
+        
     }
 }

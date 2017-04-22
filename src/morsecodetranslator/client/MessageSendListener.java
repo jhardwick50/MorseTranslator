@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Jason Hardwick
+CIS 314
+4/12/17
  */
 package morsecodetranslator.client;
 
@@ -31,15 +31,16 @@ public class MessageSendListener implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        //when key presses enter clear chat area and send message.  google key event code
-        if (e.getKeyCode() == KeyEvent.VK_ENTER){
-            messageService.sendMessage();
-            
-        }
+       
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+         //when key presses enter clear chat area and send message.  google key event code
+        if (e.getKeyCode() == KeyEvent.VK_ENTER){
+            messageService.sendMessage();
+            
+        }
     }
     
     

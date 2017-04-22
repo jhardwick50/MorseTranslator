@@ -1,12 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Jason Hardwick
+CIS 314
+4/12/17
  */
 package morsecodetranslator.client;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Formatter;
@@ -29,10 +30,10 @@ public class Client extends JFrame implements Runnable{
     public JTextArea displayArea;//area to display output
     private Socket connection;//connection to server
     private Scanner input;//input from server
-    private Formatter output;//output to server
+    private PrintWriter output;//output to server
     private String morseHost;//host name
-    private String message;
     public JTextArea chatArea;
+    public MessageService messageService;
     
     //set up user interface
     public Client(String host){
@@ -42,7 +43,9 @@ public class Client extends JFrame implements Runnable{
         add(new JScrollPane(displayArea),BorderLayout.NORTH);
         chatArea = new JTextArea(4,30);//area for input
         add(new JScrollPane(chatArea),BorderLayout.SOUTH);
-        chatArea.addKeyListener(new MessageSendListener(new MessageService(this)));
+        this.messageService = new MessageService(this);
+        chatArea.addKeyListener(new MessageSendListener(messageService));
+        
         
         setSize(500,500);
         setVisible(true);
@@ -56,9 +59,11 @@ public class Client extends JFrame implements Runnable{
             //make connection to server
             connection = new Socket(InetAddress.getByName(morseHost),12345);
             
+            System.out.println("connected");
+            
             //get streams for input output
             input = new Scanner(connection.getInputStream());
-            output = new Formatter(connection.getOutputStream());
+            output = new PrintWriter(connection.getOutputStream());
         }
         catch (IOException ioException){
             ioException.printStackTrace();
@@ -67,6 +72,15 @@ public class Client extends JFrame implements Runnable{
         ExecutorService worker = Executors.newFixedThreadPool(1);
         worker.execute(this);//execute client
     }//end method startClient
+    
+    public void sendMesage(String message) {
+        String trimmedMessage = message.trim();
+        System.out.println("Sending message to server: " + trimmedMessage);
+        output.println(trimmedMessage);
+        output.flush();
+    }
+    
+    
     
     public static void main(String[] args) {
         Client application = new Client("127.0.0.1");
@@ -77,16 +91,15 @@ public class Client extends JFrame implements Runnable{
 
     @Override
     public void run() {
-        message = input.nextLine();
+       
+        while (true){
+            String message = input.nextLine();
+            System.out.println("received message from server: " + message);
+
+            messageService.processMessage(message);
+        }    
         
-        SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run() {
-                
-            }
-            
-        }
-        );
+        
     }
    
 } // End class Client

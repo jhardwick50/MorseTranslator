@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Jason Hardwick
+CIS 314
+4/12/17
  */
 package morsecodetranslator.server;
 
@@ -14,6 +14,7 @@ import java.awt.BorderLayout;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Formatter;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -31,9 +32,9 @@ public class Server extends JFrame{
        private ExecutorService runTranslator;
        private Condition otherUserConnected; 
        private Lock transLock;
-       private ConnectedClient[] users = new ConnectedClient[2];
-       private final static int user1 = 0;
-       private final static int user2 = 1;
+       public ConnectedClient[] connectedClients = new ConnectedClient[2];
+       public final static int client1 = 0;
+       public final static int client2 = 1;
        
     public Server(){
         //create an executor service with a thread for each player
@@ -53,7 +54,7 @@ public class Server extends JFrame{
         
         outputArea = new JTextArea();//text area for output
         add(outputArea, BorderLayout.CENTER);
-        outputArea.setText("Waiting for user");
+        outputArea.setText("Waiting for user\n \nJason Hardwick \nCIS314 \n4/12/17");
         
         setSize(300,300);
         setVisible(true);
@@ -64,10 +65,10 @@ public class Server extends JFrame{
     //wait for two users to begin.
     public void execute(){
         //wait for each client to connect
-        for (int i = 0; i < users.length; i++){
+        for (int i = 0; i < connectedClients.length; i++){
             try { //wait for connection, create user, start runnable, 
-                users[i] = new ConnectedClient(server.accept(), i);
-                runTranslator.execute(users[i]);
+                connectedClients[i] = new ConnectedClient(this, server.accept(), i);
+                runTranslator.execute(connectedClients[i]);
             }//end try
             catch (IOException ioException){
                 ioException.printStackTrace();
@@ -78,7 +79,7 @@ public class Server extends JFrame{
         transLock.lock();//lock chat to signal users thread
         
         try {
-            users[user1].setSuspended(false);//resume user1
+            connectedClients[client1].setSuspended(false);//resume user1
             otherUserConnected.signal();//wake up user1's thread
         }//end try
         finally {
@@ -97,44 +98,7 @@ public class Server extends JFrame{
         );//end call to swingutilities
         
     }//end method displayMessage
-    //inner class user manages users as runnables
-    private class ConnectedClient implements Runnable {
-        private Socket connection;//connection to client
-        private Scanner input;//input from client
-        private Formatter output; // output to client
-        private int userNumber;//keeps track of user
-        private boolean suspended = true; //finds out if thread is suspended
-        
-        //set up user thread
-        public ConnectedClient(Socket socket, int number){
-            userNumber = number;//store users number
-            connection = socket;//store socket for client
-            
-            //
-            try { //obtain streams from socket
-                input = new Scanner(connection.getInputStream());
-                output = new Formatter(connection.getOutputStream());
-                
-            }//end try
-            
-            catch(IOException ioException){
-                ioException.printStackTrace();
-                System.exit(1);
-            }//end catch
-        }//end user constructor
-        
-        //control threads execution
-        public void run(){
-            //process messages from client
-            
-        }
 
-        private void setSuspended(boolean status) {
-            suspended = status;
-        }
-        
-    }
-    
     public static void main(String[] args) {
         Server application = new Server();
         application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
